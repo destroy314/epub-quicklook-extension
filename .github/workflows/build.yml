@@ -25,3 +25,39 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
             build
+      
+      - name: Ad-hoc sign and package
+        run: |
+          set -euo pipefail
+
+          APP="$PWD/build/DerivedData/Build/Products/Release/EPUBQuickLookHost.app"
+          APPEX="$APP/Contents/PlugIns/EPUBQuickLook.appex"
+
+          codesign \
+            --force \
+            --sign - \
+            --timestamp=none \
+            --entitlements EPUBQuickLook/EPUBQuickLook.entitlements \
+            "$APPEX"
+
+          codesign \
+            --force \
+            --sign - \
+            --timestamp=none \
+            --entitlements EPUBQuickLookHost/EPUBQuickLookHost.entitlements \
+            "$APP"
+
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$APP" \
+            dist/EPUBQuickLookHost.zip
+
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: EPUBQuickLookHost-macOS
+          path: dist/EPUBQuickLookHost.zip
+          if-no-files-found: error
+          retention-days: 30
