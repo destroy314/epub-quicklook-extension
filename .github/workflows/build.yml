@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -project EPUBQuickLookHost.xcodeproj \
+            -scheme EPUBQuickLookHost \
+            -configuration Release \
+            build
+
+      - name: Archive app
+        run: |
+          xcodebuild \
+            -project EPUBQuickLookHost.xcodeproj \
+            -scheme EPUBQuickLookHost \
+            -configuration Release \
+            -archivePath build/EPUBQuickLookHost.xcarchive \
+            archive
