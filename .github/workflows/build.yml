@@ -10,19 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build unsigned Release app
         run: |
-          xcodebuild \
-            -project EPUBQuickLookHost.xcodeproj \
-            -scheme EPUBQuickLookHost \
-            -configuration Release \
-            build
+          set -euo pipefail
 
-      - name: Archive app
-        run: |
           xcodebuild \
             -project EPUBQuickLookHost.xcodeproj \
             -scheme EPUBQuickLookHost \
             -configuration Release \
-            -archivePath build/EPUBQuickLookHost.xcarchive \
-            archive
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath "$PWD/build/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build
